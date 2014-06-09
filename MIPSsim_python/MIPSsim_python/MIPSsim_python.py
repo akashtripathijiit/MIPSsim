@@ -16,20 +16,28 @@ class instructions:
     def convert_to_assembly(self):
         #instruction decode
         temp_address = 128
+        self.inst_dict = dict()
+        f_write = open('disassembly-created.txt','w')
         while temp_address <= self.last_address:
             string = self.inst_dict_binary[temp_address]
             cat_no = self.categorize(string[:3])
             operation = self.opcode(cat_no,string)
             assembly = self.create_assembly(cat_no, operation,string)
-            print(assembly)
+            self.inst_dict[temp_address] = assembly
+            addr = str(temp_address)
+            str_to_write = self.inst_dict_binary[temp_address] + '\t' + addr + '\t' + self.inst_dict[temp_address]
+            print(str_to_write, file = f_write)
             temp_address += 4
             if(operation == 'BREAK'):
                 break
-
+        
         #Memory allocation
         self.memory_dict = dict()
         while temp_address <= self.last_address:
             self.memory_dict[temp_address] = two_complement(self.inst_dict_binary[temp_address])
+            addr = str(temp_address)
+            str_to_write = self.inst_dict_binary[temp_address] + '\t' + addr + '\t' + str(self.memory_dict[temp_address])
+            print(str_to_write, file = f_write)
             temp_address += 4
         print(self.memory_dict)
 
