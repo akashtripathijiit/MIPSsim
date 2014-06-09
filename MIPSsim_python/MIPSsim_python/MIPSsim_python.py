@@ -44,25 +44,37 @@ class instructions:
             rs = str(bin_to_dec(string[3:8]))
             rt = str(bin_to_dec(string[8:13]))
             rd = str(bin_to_dec(string[16:21]))
-            return op + ' R' + rd + ' R' + rs + ' R' + rt
+            return op + ' R' + rd + ', R' + rs + ', R' + rt
         elif cat == 3:
             rs = str(bin_to_dec(string[3:8]))
             rt = str(bin_to_dec(string[8:13]))
             imm = str(two_complement(string[16:32]))
-            return op + ' R' + rt + ' R' + rs + ' #' + imm
+            return op + ' R' + rt + ', R' + rs + ', #' + imm
         else:
             if op == 'BREAK':
                 return op
             elif op == 'J':
-                pass
+                add = str(4 * bin_to_dec(string[6:32]))
+                return 'J #' + add
             elif op == 'BEQ':
-                pass
+                rs = str(bin_to_dec(string[6:11]))
+                rt = str(bin_to_dec(string[11:16]))
+                offset = str(4 * two_complement(string[16:32]))
+                return op + ' R' + rs + ', R' + rt + ', #' + offset
             elif op == 'BGTZ':
-                pass
+                rs = str(bin_to_dec(string[6:11]))
+                offset = str(4 * two_complement(string[16:32]))
+                return op + ' R' + rs + ', #' + offset
             elif op == 'SW':
-                pass
+                base = str(bin_to_dec(string[6:11]))
+                rt = str(bin_to_dec(string[11:16]))
+                offset = str(two_complement(string[16:32]))
+                return op + ' R' + rt + ', ' + offset + '(R' + base + ')'
             elif op == 'LW':
-                pass
+                base = str(bin_to_dec(string[6:11]))
+                rt = str(bin_to_dec(string[11:16]))
+                offset = str(two_complement(string[16:32]))
+                return op + ' R' + rt + ', ' + offset + '(R' + base + ')'
 
     def opcode(self,cat,string):
         if cat == 1:
