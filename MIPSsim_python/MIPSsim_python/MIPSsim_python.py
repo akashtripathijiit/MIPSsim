@@ -136,7 +136,7 @@ class instructions:
         elif inp == '111':
             return 3
         else:
-            raise Wrong_Input_Error('Invalid input')
+            raise Exception('Invalid input')
 
 def bin_to_dec(string):
     length = len(string)
@@ -168,7 +168,91 @@ def two_complement(string):
         number = (number + 1)*(-1)
     return number    
 
+class inst_fetch:
+    def __init__(self, pre_issue):
+        self.pre_issue = pre_issue
+    
+    def process(self, pc, inst):
+        self.counter = pc
+        count = 0
+        while(count < 2 and self.pre_issue.size() < self.pre_issue.maxsize):
+            if(inst.inst_dict[self.counter] == 'BREAK'):
+                return 0
+            else:
+                self.pre_issue.enqueue(block(inst.inst_dict[self.counter]))
+                count += 1
+                self.counter += 4
+        return count
+
+class block:
+    def __init__(self,inst):
+        self.inst = inst
+        self.flag = 0
+
+class hardware:
+    def __init__(self):
+        self.instantiate_buffers()
+        self.instantiate_units()
+
+    def instantiate_buffers(self):
+        self.pre_issue = Queue(4)
+        self.pre_alu = Queue(2)
+        self.post_mem = Queue(1)
+        self.pre_mem = Queue(1)
+        self.post_alu = Queue(1)
+    
+    def instantiate_units(self):
+        self.fetch = inst_fetch(self.pre_issue)
+
+class Queue:
+    def __init__(self, maxsize):
+        self.items = []
+        self.maxsize = maxsize
+ 
+    def isEmpty(self):
+        return self.items == []
+
+    def enqueue(self, item):
+        if self.size() < self.maxsize:
+            self.items.insert(0,item)
+        else:
+           #raise Exception('queue full')
+           pass
+
+    def dequeue(self):
+        s = self.size()
+        if self.items[s-1].flag == 1:
+            return self.items.pop()
+        else :
+            pass
+ 
+    def size(self):
+        return len(self.items)
+
+    def show(self):
+        print('[ ',end='')
+        for i in self.items:
+            print(i.inst,end=', ')
+        print(']')
+
+    def refresh(self):
+        for i in self.items:
+            i.flag = 1
+ 
 def main():
     inst = instructions("sample.txt")
-
+    hw = hardware()
+    pc = 128
+    while (1):
+        res = hw.fetch.process(pc, inst)
+        if res == 0:
+            break
+        elif res == 1:
+            pc += 4
+        elif res == 2:
+            pc += 8
+        hw.pre_issue.show()
+        hw.pre_issue.dequeue()
+        hw.pre_issue.refresh()
+    
 if __name__ == "__main__":main()
